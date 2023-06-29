@@ -1,6 +1,6 @@
 # PostgreSQL Distributed Caching System
 
-The PostgreSQL Distributed Caching System is a package designed to provide an easy-to-setup caching solution for PostgreSQL database queries. It aims to improve query performance by caching frequently accessed data in memory, reducing the need to hit the database for every query.
+The PostgreSQL Distributed Caching System is a package designed to provide an easy-to-setup read-through and write-through caching solution for PostgreSQL database queries. It aims to improve query performance by caching frequently accessed data in memory, reducing the need to hit the database for every query.
 
 ## Roadmap (in order, although will change)
 1. Figure out key concepts
