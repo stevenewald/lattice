@@ -4,15 +4,32 @@ The PostgreSQL Distributed Caching System is a package designed to provide an ea
 
 ## Roadmap (in order, although will change)
 1. Figure out key concepts
-  - [ ] Cache Invalidation
+  - [x] Cache Invalidation
+    - Make write-through required, although will need to find a way to enforce. Assuming good for now
   - [x] Memory Consumption
+    - Handled by distributed nature. K8s automatically deploy addl nodes when required
   - [ ] Cache Coherency (/policy if not 100%)
+    - Will have clients that use consistent hashing to read/write to distributed nodes.
+    - Slight chance this affects invalidation. Idea: **centralized hash ring**
   - [ ] Eviction Policies
+    - LRU?
+    - [x] Eviction vs expansion
+      - If LRU is hot, expand cluster (vs evict)
+      - Synchronization may be complex
   - [ ] Query Complexity (which parts of query can be cached)
       - [ ] Do we want to modify queries in order to cache more data?
-  - [ ] Cache Warm-up and Cold-start
-  - [ ] Cache Consistency and Durability
-2. Will continue once above is figured out
+      - This is fundamental and **MUST** be decided early on
+  - [x] Cache Warm-up and Cold-start
+      - Can be decided later on
+  - [x] Cache Consistency and Durability
+      - No persistence + enforced read/write through so no biggie
+2. Find package/data structure to store primitives/arrays
+  - Do we want to store them with Rust DS or with another package
+  - Maybe consider using redis? May be overkill but also may be v useful
+3. Decide on preliminary file structure (annoying to do later on)
+4. Implement loading configuration files (boring)
+4. Implement basic sql querying from conf files (boring)
+5+: k8s deployment, hashing/sharding, write-through, processing/caching, etc
 
 ## Features (eventually lol)
 
