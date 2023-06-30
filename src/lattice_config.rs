@@ -1,53 +1,44 @@
-use config::Config;
+use dotenv::dotenv;
 use lazy_static::lazy_static;
+use std::env;
+use std::net::{SocketAddr, ToSocketAddrs};
 
-pub struct AppConfig {
-    pub server_address: String,
+pub struct LatticeConfig {
+    pub listen_socket_addr: SocketAddr,
+    pub sql_addr: String,
     pub max_connections: u32,
-    pub port: u16,
 }
 
 lazy_static! {
-    pub static ref CONFIG: AppConfig = {
-        let settings = Config::builder()
-            .add_source(config::File::with_name("config.toml"))
-            .add_source(config::Environment::with_prefix("LATTICE"))
-            .build()
-            .unwrap();
+    pub static ref CONFIG: LatticeConfig = {
+        dotenv().ok();
 
-        let server_address_result = settings.get_string("server_address");
-        let max_connections_result = settings.get_int("max_connections");
-        let port_result = settings.get_int("port");
-
-        let server_address: String = match server_address_result {
-            Ok(value) => value,
-            Err(_) => "".to_string(),
+        let listen_addr = match env::var("LISTEN_URL") {
+            Ok(addr) => addr,
+            Err(_) => "127.0.0.1:3000".to_string(),
         };
-        let max_connections: u32 = match max_connections_result {
-            Ok(value) => {
-                if value >= 0 {
-                    value as u32
-                } else {
-                    0
-                }
-            }
-            Err(_) => 0,
+        let max_connections = match env::var("MAX_CONNECTIONS") {
+            Ok(maxconn) => match maxconn.parse::<u32>() {
+                Ok(maxconn) => maxconn as u32,
+                Err(_) => 50,
+            },
+            Err(_) => 50,
         };
-        let port: u16 = match port_result {
-            Ok(value) => {
-                if value >= 0 {
-                    value as u16
-                } else {
-                    0
-                }
-            }
-            Err(_) => 0,
+        let sql_addr = match env::var("DATABASE_URL") {
+            Ok(addr) => addr,
+            Err(_) => panic!("Database URL not set"),
         };
 
-        AppConfig {
-            server_address,
+        let listen_socket_addr = listen_addr
+            .to_socket_addrs()
+            .expect("Failed to parse socket IP")
+            .next()
+            .expect("No socket addresses found");
+
+        LatticeConfig {
+            listen_socket_addr,
+            sql_addr,
             max_connections,
-            port,
         }
     };
 }
