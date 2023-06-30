@@ -5,6 +5,9 @@ edition = "2021"
 
 [dependencies]
 config = "0.13.3"
-hyper = "0.14.27"
+dotenv = "0.15.0"
+hyper = {version="0.14.27", features=['full']}
 lazy_static = "1.4.0"
-tokio = "1.29.1"
+sqlparser = "0.35.0"
+sqlx = {version="0.6.3",features=['runtime-tokio-rustls', 'postgres']}
+tokio = {version="1.29.1", features=['full']}
