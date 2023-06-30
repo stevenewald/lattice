@@ -3,6 +3,8 @@ name = "lattice"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
+config = "0.13.3"
+hyper = "0.14.27"
+lazy_static = "1.4.0"
+tokio = "1.29.1"
