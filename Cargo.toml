@@ -11,3 +11,4 @@ lazy_static = "1.4.0"
 sqlparser = "0.35.0"
 sqlx = {version="0.6.3",features=['runtime-tokio-rustls', 'postgres']}
 tokio = {version="1.29.1", features=['full']}
+url = "2.4.0"
