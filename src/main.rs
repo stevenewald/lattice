@@ -5,6 +5,7 @@ use tokio_postgres::{config::Config, NoTls};
 
 mod networking;
 mod config;
+mod caching;
 use crate::config::config::CONFIG;
 
 #[tokio::main]

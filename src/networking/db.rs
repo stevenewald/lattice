@@ -1,5 +1,5 @@
+use crate::caching::parser;
 use deadpool_postgres::Pool;
-// use crate::caching::parser;
 
 pub struct QueryResult {
     pub first_name: String,
@@ -12,6 +12,8 @@ pub async fn example_query(
 ) -> Result<QueryResult, Box<(dyn std::error::Error + 'static)>> {
     let query_sql = query_string.replace("%", " ");
     println!("Running SQL query {}", query_sql);
+    let cols: Vec<String> = parser::get_selected_columns(&query_sql);
+    println!("Columns: {:?}", cols);
 
     let client = conn.get().await?;
     let result = client.query(&query_sql, &[]).await?;
