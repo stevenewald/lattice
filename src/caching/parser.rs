@@ -1,9 +1,9 @@
 use sqlparser::ast::{Expr, SelectItem, SetExpr, Statement};
-use sqlparser::dialect::GenericDialect;
+use sqlparser::dialect::PostgreSqlDialect;
 use sqlparser::parser::Parser;
 
 pub fn get_selected_columns(sql: &str) -> Vec<String> {
-    let dialect = GenericDialect {};
+    let dialect = PostgreSqlDialect {};
     let ast = Parser::parse_sql(&dialect, sql).unwrap();
 
     let mut selected_columns = vec![];
