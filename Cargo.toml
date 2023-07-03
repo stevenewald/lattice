@@ -9,6 +9,7 @@ deadpool-postgres = "0.10.5"
 dotenv = "0.15.0"
 hyper = {version="0.14.27", features=['full']}
 lazy_static = "1.4.0"
+sqlformat = "0.2.1"
 sqlparser = "0.35.0"
 tokio = {version="1.29.1", features=['full']}
 tokio-postgres = "0.7.8"
