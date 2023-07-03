@@ -1,4 +1,5 @@
 use deadpool_postgres::Pool;
+// use crate::caching::parser;
 
 pub struct QueryResult {
     pub first_name: String,

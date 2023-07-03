@@ -4,10 +4,8 @@ use hyper::{Error, Server};
 use lattice_config::CONFIG;
 use tokio_postgres::{config::Config, NoTls};
 
-mod db;
-mod handlers;
+mod networking;
 mod lattice_config;
-mod services;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<(dyn std::error::Error + 'static)>> {
@@ -29,7 +27,7 @@ async fn main() -> Result<(), Box<(dyn std::error::Error + 'static)>> {
         async {
             Ok::<_, Error>(service_fn(move |req| {
                 let pool = pool.clone();
-                handlers::request_handler(req, pool)
+                networking::handlers::request_handler(req, pool)
             }))
         }
     });
