@@ -1,27 +1,28 @@
-use sqlx::{pool::PoolConnection, query, Error, Postgres};
+use deadpool_postgres::Pool;
 
 pub struct QueryResult {
     pub first_name: String,
     pub last_name: String,
 }
 
-pub async fn example_query(conn: &mut PoolConnection<Postgres>) -> Result<QueryResult, Error> {
-    /*
-    let row: (i32,) = sqlx::query_as("SELECT $1")
-        .bind(150_i32)
-        .fetch_one(conn).await
-        .expect("Failed to fetch from database");
+pub async fn example_query(
+    conn: Pool,
+    query_string: &str,
+) -> Result<QueryResult, Box<(dyn std::error::Error + 'static)>> {
+    let query_sql = query_string.replace("%", " ");
+    println!("Running SQL query {}", query_sql);
 
-    ExampleResult { ... }
-    */
-    let res = query!(r#"SELECT first_name, last_name FROM USERS"#)
-        .fetch_one(conn)
-        .await;
-    match res {
-        Ok(value) => Ok(QueryResult {
-            first_name: value.first_name.unwrap(),
-            last_name: value.last_name.unwrap(),
-        }),
-        Err(e) => Err(e),
+    let client = conn.get().await?;
+    let result = client.query(&query_sql, &[]).await?;
+
+    if let Some(row) = result.iter().next() {
+        let first_name: String = row.get(0);
+        let last_name: String = row.get(1);
+        Ok(QueryResult {
+            first_name,
+            last_name,
+        })
+    } else {
+        Err("No rows returned from query".into())
     }
 }

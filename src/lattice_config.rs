@@ -5,7 +5,11 @@ use std::net::{SocketAddr, ToSocketAddrs};
 
 pub struct LatticeConfig {
     pub listen_socket_addr: SocketAddr,
-    pub sql_addr: String,
+    pub pg_host: String,
+    pub pg_port: u16,
+    pub pg_db_name: String,
+    pub pg_pass: String,
+    pub pg_user: String,
     pub max_connections: u32,
 }
 
@@ -24,9 +28,25 @@ lazy_static! {
             },
             Err(_) => 50,
         };
-        let sql_addr = match env::var("DATABASE_URL") {
+        let pg_host = match env::var("PG_HOST") {
             Ok(addr) => addr,
-            Err(_) => panic!("Database URL not set"),
+            Err(_) => panic!("Postgres host not set"),
+        };
+        let pg_db_name = match env::var("PG_DB_NAME") {
+            Ok(db_name) => db_name,
+            Err(_) => panic!("Postgres db name not set"),
+        };
+        let pg_pass = match env::var("PG_PASS") {
+            Ok(pass) => pass,
+            Err(_) => panic!("Postgres password not set"),
+        };
+        let pg_user = match env::var("PG_USER") {
+            Ok(user) => user,
+            Err(_) => panic!("Postgres username not set"),
+        };
+        let pg_port: u16 = match env::var("PG_PORT") {
+            Ok(port) => port.parse().expect("Unable to parse port"),
+            Err(_) => panic!("Postgres port not set"),
         };
 
         let listen_socket_addr = listen_addr
@@ -37,7 +57,11 @@ lazy_static! {
 
         LatticeConfig {
             listen_socket_addr,
-            sql_addr,
+            pg_host,
+            pg_port,
+            pg_db_name,
+            pg_pass,
+            pg_user,
             max_connections,
         }
     };
