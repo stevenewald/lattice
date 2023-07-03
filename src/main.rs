@@ -1,11 +1,11 @@
 use deadpool_postgres::{Manager, ManagerConfig, Pool, RecyclingMethod};
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Error, Server};
-use lattice_config::CONFIG;
 use tokio_postgres::{config::Config, NoTls};
 
 mod networking;
-mod lattice_config;
+mod config;
+use crate::config::config::CONFIG;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<(dyn std::error::Error + 'static)>> {
