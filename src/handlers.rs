@@ -3,7 +3,7 @@ use deadpool_postgres::Pool;
 use hyper::{Body, Error, Request, Response};
 use url::form_urlencoded;
 
-pub async fn example_handler(req: Request<Body>, conn: Pool) -> Result<Response<Body>, Error> {
+pub async fn request_handler(req: Request<Body>, conn: Pool) -> Result<Response<Body>, Error> {
     let mut sql_value: Option<String> = None;
 
     if let Some(query) = req.uri().query() {
@@ -24,7 +24,7 @@ pub async fn example_handler(req: Request<Body>, conn: Pool) -> Result<Response<
         )));
     }
 
-    let result = services::example_service(conn, &sql_value.unwrap()).await;
+    let result = services::sql_cache_service(conn, &sql_value.unwrap()).await;
 
     Ok(Response::new(Body::from(format!(
         "{}, {}",

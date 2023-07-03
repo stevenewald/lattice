@@ -29,7 +29,7 @@ async fn main() -> Result<(), Box<(dyn std::error::Error + 'static)>> {
         async {
             Ok::<_, Error>(service_fn(move |req| {
                 let pool = pool.clone();
-                handlers::example_handler(req, pool)
+                handlers::request_handler(req, pool)
             }))
         }
     });
