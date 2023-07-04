@@ -1,10 +1,12 @@
+use crate::config::{initialize, lattice_config::CONFIG};
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Error, Server};
 
+mod caching;
 mod config;
 mod networking;
+mod piping;
 mod query_parsing;
-use crate::config::{initialize, lattice_config::CONFIG};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<(dyn std::error::Error + 'static)>> {
