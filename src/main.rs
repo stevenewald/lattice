@@ -1,27 +1,14 @@
-use deadpool_postgres::{Manager, ManagerConfig, Pool, RecyclingMethod};
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Error, Server};
-use tokio_postgres::{config::Config, NoTls};
 
 mod config;
 mod networking;
 mod query_parsing;
-use crate::config::config::CONFIG;
+use crate::config::{initialize, lattice_config::CONFIG};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<(dyn std::error::Error + 'static)>> {
-    let mut pg_config = Config::new();
-    pg_config.user(&CONFIG.pg_user);
-    pg_config.password(&CONFIG.pg_pass);
-    pg_config.host(&CONFIG.pg_host);
-    pg_config.dbname(&CONFIG.pg_db_name);
-    pg_config.port(CONFIG.pg_port);
-
-    let mgr_config = ManagerConfig {
-        recycling_method: RecyclingMethod::Fast,
-    };
-    let mgr = Manager::from_config(pg_config, NoTls, mgr_config);
-    let pool: Pool = Pool::builder(mgr).max_size(16).build().unwrap();
+    let pool = initialize::initialize_pool(16);
 
     let make_service = make_service_fn(|_conn| {
         let pool = pool.clone();
@@ -33,12 +20,7 @@ async fn main() -> Result<(), Box<(dyn std::error::Error + 'static)>> {
         }
     });
 
-    println!("Server Address: {}", CONFIG.listen_socket_addr);
-    println!("Max Connections: {}", CONFIG.max_connections);
-    println!("Postgres Address: {}", CONFIG.pg_host);
-    println!("Postgres Username: {}", CONFIG.pg_user);
-    println!("Postgres Password: {}", CONFIG.pg_pass);
-    println!("Postgres Database: {}", CONFIG.pg_db_name);
+    initialize::print_config();
 
     Server::bind(&CONFIG.listen_socket_addr)
         .serve(make_service)

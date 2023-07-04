@@ -11,9 +11,10 @@ pub async fn example_query(
     query_string: &str,
 ) -> Result<QueryResult, Box<(dyn std::error::Error + 'static)>> {
     let query_sql = query_string.replace("%", " ");
-    println!("Running SQL query {}", query_sql);
+
     let cols: Vec<String> = query_parsing::parser::get_selected_columns(&query_sql);
     let formatted_sql: String = query_parsing::formatting::format_sql_query(&query_sql);
+
     println!("Columns: {:?}", cols);
     println!("Formatted SQL\n{}", formatted_sql);
 
