@@ -3,9 +3,9 @@ use hyper::service::{make_service_fn, service_fn};
 use hyper::{Error, Server};
 use tokio_postgres::{config::Config, NoTls};
 
-mod networking;
 mod config;
-mod caching;
+mod networking;
+mod query_parsing;
 use crate::config::config::CONFIG;
 
 #[tokio::main]
