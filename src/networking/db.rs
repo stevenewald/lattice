@@ -1,5 +1,7 @@
-use crate::query_parsing;
+use crate::piping::piping::publish_update;
+use crate::{piping::column_update::ColumnUpdate, query_parsing};
 use deadpool_postgres::Pool;
+use tokio::sync::mpsc::UnboundedSender as Sender;
 
 pub struct QueryResult {
     pub first_name: String,
@@ -9,6 +11,7 @@ pub struct QueryResult {
 pub async fn example_query(
     conn: Pool,
     query_string: &str,
+    sender: Sender<ColumnUpdate>,
 ) -> Result<QueryResult, Box<(dyn std::error::Error + 'static)>> {
     let query_sql = query_string.replace("%", " ");
 

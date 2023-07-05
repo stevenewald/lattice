@@ -1,9 +1,18 @@
-use crate::networking::services;
+use crate::{networking::services, piping::column_update::ColumnUpdate};
 use deadpool_postgres::Pool;
 use hyper::{Body, Error, Request, Response};
+use tokio::sync::mpsc::UnboundedSender as Sender;
 use url::form_urlencoded;
 
-pub async fn request_handler(req: Request<Body>, conn: Pool) -> Result<Response<Body>, Error> {
+//Todo: refactor into shared_state struct which has
+//methods like process_data, modify_query, etc
+//rather than passing a bunch of arguments down
+//blake, if you want to do this 😁
+pub async fn request_handler(
+    req: Request<Body>,
+    conn: Pool,
+    sender: Sender<ColumnUpdate>,
+) -> Result<Response<Body>, Error> {
     let mut sql_value: Option<String> = None;
 
     if let Some(query) = req.uri().query() {
@@ -24,7 +33,7 @@ pub async fn request_handler(req: Request<Body>, conn: Pool) -> Result<Response<
         )));
     }
 
-    let result = services::sql_cache_service(conn, &sql_value.unwrap()).await;
+    let result = services::sql_cache_service(conn, &sql_value.unwrap(), sender).await;
 
     Ok(Response::new(Body::from(format!(
         "{}, {}",

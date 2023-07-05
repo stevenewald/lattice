@@ -12,10 +12,21 @@ pub fn get_selected_columns(sql: &str) -> Vec<String> {
         if let Statement::Query(boxed_query) = stmt {
             if let SetExpr::Select(select) = *boxed_query.body {
                 for item in select.projection {
+                    println!("t{:?}", item);
                     match item {
                         SelectItem::UnnamedExpr(Expr::Identifier(ident)) => {
                             selected_columns.push(ident.value);
                         }
+                        SelectItem::UnnamedExpr(Expr::CompoundIdentifier(ident)) => {
+                            //first index represents table, TODO make a struct if necessary (or
+                            //maybe it isn't)
+                            selected_columns.push(format!(
+                                "{}.{}",
+                                ident.get(0).unwrap().value.clone(),
+                                ident.get(1).unwrap().value.clone()
+                            ));
+                        }
+
                         SelectItem::ExprWithAlias {
                             expr: Expr::Identifier(ident),
                             alias,
