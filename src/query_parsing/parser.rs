@@ -12,26 +12,14 @@ pub fn get_selected_columns(sql: &str) -> Vec<String> {
         if let Statement::Query(boxed_query) = stmt {
             if let SetExpr::Select(select) = *boxed_query.body {
                 for item in select.projection {
-                    println!("t{:?}", item);
                     match item {
-                        SelectItem::UnnamedExpr(Expr::Identifier(ident)) => {
-                            selected_columns.push(ident.value);
-                        }
-                        SelectItem::UnnamedExpr(Expr::CompoundIdentifier(ident)) => {
-                            //first index represents table, TODO make a struct if necessary (or
-                            //maybe it isn't)
-                            selected_columns.push(format!(
-                                "{}.{}",
-                                ident.get(0).unwrap().value.clone(),
-                                ident.get(1).unwrap().value.clone()
-                            ));
+                        SelectItem::UnnamedExpr(ident) => {
+                            selected_columns.push(parse_identifier(ident));
                         }
 
-                        SelectItem::ExprWithAlias {
-                            expr: Expr::Identifier(ident),
-                            alias,
-                        } => {
-                            selected_columns.push(format!("{} as {}", ident.value, alias));
+                        SelectItem::ExprWithAlias { expr, alias } => {
+                            let orig_col_name = parse_identifier(expr);
+                            selected_columns.push(format!("{} as {}", orig_col_name, alias));
                         }
                         _ => (),
                     }
@@ -41,4 +29,22 @@ pub fn get_selected_columns(sql: &str) -> Vec<String> {
     }
 
     selected_columns
+}
+
+fn parse_identifier(id: Expr) -> String {
+    match id {
+        Expr::Identifier(ident) => {
+            return ident.value;
+        }
+        Expr::CompoundIdentifier(ident) => {
+            let mut joined_col: Vec<String> = vec![];
+            for col in ident.iter() {
+                joined_col.push(col.value.clone());
+            }
+            return joined_col.join(".");
+        }
+        _ => {
+            panic!("Parse_identifier only expects Identifier or CompoundIdentifier")
+        }
+    }
 }

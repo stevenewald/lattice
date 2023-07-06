@@ -11,15 +11,15 @@ pub struct QueryResult {
 pub async fn example_query(
     conn: Pool,
     query_string: &str,
-    sender: Sender<ColumnUpdate>,
+    _sender: Sender<ColumnUpdate>,
 ) -> Result<QueryResult, Box<(dyn std::error::Error + 'static)>> {
     let query_sql = query_string.replace("%", " ");
 
     let cols: Vec<String> = query_parsing::parser::get_selected_columns(&query_sql);
-    let formatted_sql: String = query_parsing::formatting::format_sql_query(&query_sql);
+    // let formatted_sql: String = query_parsing::formatting::format_sql_query(&query_sql);
 
     println!("Columns: {:?}", cols);
-    println!("Formatted SQL\n{}", formatted_sql);
+    // println!("Formatted SQL\n{}", formatted_sql);
 
     let client = conn.get().await?;
     let result = client.query(&query_sql, &[]).await?;
