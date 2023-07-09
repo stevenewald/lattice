@@ -1,3 +1,4 @@
+use crate::piping::column_update::parse_into_cu;
 use crate::piping::column_update::ColumnUpdate;
 use crate::query_parsing::formatting::format_sql_query;
 use crate::query_parsing::parser::extract_usable_columns;
@@ -12,7 +13,7 @@ pub struct QueryResult {
 pub async fn example_query(
     conn: Pool,
     query_string: &str,
-    _sender: Sender<ColumnUpdate>,
+    sender: Sender<ColumnUpdate>,
 ) -> Result<QueryResult, Box<(dyn std::error::Error + 'static)>> {
     let query_sql = query_string.replace("%", " ");
 
@@ -20,6 +21,11 @@ pub async fn example_query(
     println!("Columns: {:?}", cols);
     let formatted_sql: String = format_sql_query(&query_sql);
     println!("Formatted: {}", formatted_sql);
+
+    let cus = parse_into_cu(cols);
+    for cu in cus {
+        sender.send(cu)?;
+    }
 
     let client = conn.get().await?;
     let result = client.query(&query_sql, &[]).await?;
