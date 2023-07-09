@@ -1,5 +1,6 @@
-use crate::piping::piping::publish_update;
-use crate::{piping::column_update::ColumnUpdate, query_parsing};
+use crate::piping::column_update::ColumnUpdate;
+use crate::query_parsing::formatting::format_sql_query;
+use crate::query_parsing::parser::extract_usable_columns;
 use deadpool_postgres::Pool;
 use tokio::sync::mpsc::UnboundedSender as Sender;
 
@@ -15,11 +16,10 @@ pub async fn example_query(
 ) -> Result<QueryResult, Box<(dyn std::error::Error + 'static)>> {
     let query_sql = query_string.replace("%", " ");
 
-    let cols: Vec<String> = query_parsing::parser::get_selected_columns(&query_sql);
-    // let formatted_sql: String = query_parsing::formatting::format_sql_query(&query_sql);
-
+    let cols: Vec<String> = extract_usable_columns(&query_sql);
     println!("Columns: {:?}", cols);
-    // println!("Formatted SQL\n{}", formatted_sql);
+    let formatted_sql: String = format_sql_query(&query_sql);
+    println!("Formatted: {}", formatted_sql);
 
     let client = conn.get().await?;
     let result = client.query(&query_sql, &[]).await?;
