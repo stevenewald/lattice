@@ -25,9 +25,7 @@ pub async fn request_handler(
         }
     }
 
-    if let Some(sql) = &sql_value {
-        println!("Rx sql query: {}", sql.replace("%", " "));
-    } else {
+    if sql_value.is_none() {
         return Ok(Response::new(Body::from(
             r#"No sql query contained in GET request"#,
         )));
