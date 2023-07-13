@@ -1,5 +1,5 @@
-use crate::piping::column_update::parse_into_cu;
 use crate::piping::column_update::ColumnUpdate;
+use crate::piping::piping::publish_update;
 use crate::query_parsing::formatting::format_sql_query;
 use crate::query_parsing::parser::extract_usable_columns;
 use deadpool_postgres::Pool;
@@ -22,10 +22,7 @@ pub async fn example_query(
     let formatted_sql: String = format_sql_query(&query_sql);
     println!("Formatted: {}", formatted_sql);
 
-    let cus = parse_into_cu(cols);
-    for cu in cus {
-        sender.send(cu)?;
-    }
+    publish_update(sender, cols);
 
     let client = conn.get().await?;
     let result = client.query(&query_sql, &[]).await?;
