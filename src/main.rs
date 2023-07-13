@@ -1,4 +1,5 @@
 use crate::config::{initialize, lattice_config::CONFIG};
+use caching::cache_loop::start_cache_rx;
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Error, Server};
 use networking::handlers::request_handler;
@@ -15,7 +16,7 @@ async fn main() -> Result<(), Box<(dyn std::error::Error + 'static)>> {
     let pool = initialize::initialize_pool(16);
 
     //TODO: make non-hardcoded buf size. Maybe dynamic?
-    let (col_update_sender, col_updete_receiver) = create_pipe();
+    let (col_update_sender, col_update_receiver) = create_pipe();
 
     let make_service = make_service_fn(|_conn| {
         let pool = pool.clone();
@@ -30,6 +31,7 @@ async fn main() -> Result<(), Box<(dyn std::error::Error + 'static)>> {
     });
 
     initialize::print_config();
+    start_cache_rx(col_update_receiver);
 
     Server::bind(&CONFIG.listen_socket_addr)
         .serve(make_service)
