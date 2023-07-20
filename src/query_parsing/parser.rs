@@ -1,3 +1,4 @@
+use log::error;
 use sqlparser::ast::{Expr, SelectItem, SetExpr, Statement, TableFactor};
 use sqlparser::dialect::PostgreSqlDialect;
 use sqlparser::parser::Parser;
@@ -9,7 +10,7 @@ struct QueryMetrics {
 
 pub fn extract_usable_columns(sql: &str) -> Vec<String> {
     let QueryMetrics { columns, tables } = extract_columns_tables(sql);
-    println!("Tables {:?}", tables);
+    // info!("Tables {:?}", tables);
     // want to relate unusable columns to their respective tables
     // right now, interpreting already usable columns as columns with dots
     // this will not work if there are aliases. however, this type of column will be surrounded
@@ -18,7 +19,7 @@ pub fn extract_usable_columns(sql: &str) -> Vec<String> {
     for col in columns {
         if !col.contains(".") {
             if tables.len() != 1 {
-                eprintln!("Column without direct table ref, multiple tables in query. TODO, currently unsupported");
+                error!("Column without direct table ref, multiple tables in query. TODO, currently unsupported");
                 continue;
             }
             let new_col: String = match tables.get(0) {

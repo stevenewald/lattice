@@ -3,6 +3,7 @@ use crate::piping::piping::publish_update;
 use crate::query_parsing::formatting::format_sql_query;
 use crate::query_parsing::parser::extract_usable_columns;
 use deadpool_postgres::Pool;
+use log::info;
 use tokio::sync::mpsc::UnboundedSender as Sender;
 
 pub struct QueryResult {
@@ -18,9 +19,9 @@ pub async fn example_query(
     let query_sql = query_string.replace("%", " ");
 
     let cols: Vec<String> = extract_usable_columns(&query_sql);
-    println!("Columns: {:?}", cols);
+    info!("Columns: {:?}", cols);
     let formatted_sql: String = format_sql_query(&query_sql);
-    println!("Formatted: {}", formatted_sql);
+    info!("Formatted: {}", formatted_sql);
 
     publish_update(sender, cols);
 

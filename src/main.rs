@@ -1,3 +1,4 @@
+use crate::config::logging::initialize_logging;
 use crate::config::{initialize, lattice_config::CONFIG};
 use caching::cache_loop::start_cache_rx;
 use hyper::service::{make_service_fn, service_fn};
@@ -13,6 +14,8 @@ mod query_parsing;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<(dyn std::error::Error + 'static)>> {
+    initialize_logging();
+
     let pool = initialize::initialize_pool(16);
 
     //TODO: make non-hardcoded buf size. Maybe dynamic?
