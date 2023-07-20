@@ -16,6 +16,6 @@ pub fn initialize_logging() {
                 record.args().to_string().white()
             )
         })
-        .filter(None, LevelFilter::Info) // Use this to filter based on levels
+        .filter(None, LevelFilter::Info)
         .init();
 }

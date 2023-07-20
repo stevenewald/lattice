@@ -1,5 +1,6 @@
 use crate::config::lattice_config::CONFIG;
 use deadpool_postgres::{Manager, ManagerConfig, Pool, RecyclingMethod};
+use log::info;
 use tokio_postgres::{config::Config, NoTls};
 
 pub fn initialize_pool(size: usize) -> Pool {
@@ -19,10 +20,10 @@ pub fn initialize_pool(size: usize) -> Pool {
 }
 
 pub fn print_config() {
-    println!("Server Address: {}", CONFIG.listen_socket_addr);
-    println!("Max Connections: {}", CONFIG.max_connections);
-    println!("Postgres Address: {}", CONFIG.pg_host);
-    println!("Postgres Username: {}", CONFIG.pg_user);
-    println!("Postgres Password: {}", CONFIG.pg_pass);
-    println!("Postgres Database: {}", CONFIG.pg_db_name);
+    info!("Server Address: {}", CONFIG.listen_socket_addr);
+    info!("Max Connections: {}", CONFIG.max_connections);
+    info!("Postgres Address: {}", CONFIG.pg_host);
+    info!("Postgres Username: {}", CONFIG.pg_user);
+    info!("Postgres Password: {}", CONFIG.pg_pass);
+    info!("Postgres Database: {}", CONFIG.pg_db_name);
 }
