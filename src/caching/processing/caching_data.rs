@@ -1,3 +1,4 @@
+use crate::query_parsing::parser::extract_query_info;
 use log::info;
 use std::collections::HashMap;
 
@@ -60,6 +61,30 @@ impl CachingData {
 
             column_data.access_freq += 1.0;
         }
+    }
+
+    pub fn cols_to_req(&self, query_sql: &str) -> (Vec<String>, Vec<String>) {
+        let cols_tables = extract_query_info(&query_sql);
+        let cols = cols_tables.columns;
+        let tables = cols_tables.tables;
+
+        let mut new_columns: Vec<String> = Vec::new();
+
+        for table in tables {
+            let top_2_columns = self.get_top_k_cols(&table, 5);
+            for col in top_2_columns {
+                new_columns.push(table.clone() + "." + &col.to_string());
+            }
+        }
+
+        //For small n, actually faster than using set. May change later
+        let mut new_columns_no_overlap: Vec<String> = Vec::new();
+        for col in new_columns {
+            if !cols.contains(&col) {
+                new_columns_no_overlap.push(col);
+            }
+        }
+        (cols, new_columns_no_overlap)
     }
 
     pub fn sort_and_clean(&mut self) {

@@ -14,7 +14,6 @@ mod config;
 mod networking;
 mod piping;
 mod query_parsing;
-mod sql;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<(dyn std::error::Error + 'static)>> {
@@ -22,7 +21,6 @@ async fn main() -> Result<(), Box<(dyn std::error::Error + 'static)>> {
 
     let pool = initialize::initialize_pool(16);
 
-    //TODO: make non-hardcoded buf size. Maybe dynamic?
     let (col_update_sender, col_update_receiver) = create_pipe();
     let caching_lock: Arc<RwLock<CachingData>> = start_cache_rx(col_update_receiver);
     let make_service = make_service_fn(|_conn| {

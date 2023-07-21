@@ -1,5 +1,4 @@
 use crate::piping::piping::publish_update;
-use crate::sql::unpack_sql::cols_to_req;
 use crate::piping::column_update::ColumnUpdate;
 use crate::CachingData;
 use tokio_postgres::Row;
@@ -18,7 +17,7 @@ pub async fn example_query(
     let query_sql = query_string.replace("%", " ");
     let cache = caching_info.read().await;
     
-    let (old_cols, new_cols) = cols_to_req(&query_sql, cache);
+    let (old_cols, new_cols) = cache.cols_to_req(&query_sql);
     info!("Old cols: {:?}", old_cols);
     info!("New cols: {:?}", new_cols);
 
