@@ -1,7 +1,7 @@
-use crate::caching::caching_data::CachingData;
+use crate::caching::processing::caching_data::CachingData;
 use crate::config::logging::initialize_logging;
 use crate::config::{initialize, lattice_config::CONFIG};
-use caching::cache_loop::start_cache_rx;
+use caching::processing::cache_loop::start_cache_rx;
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Error, Server};
 use networking::handlers::request_handler;

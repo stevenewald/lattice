@@ -1,4 +1,4 @@
-use crate::caching::caching_data::CachingData;
+use crate::caching::processing::caching_data::CachingData;
 use crate::{networking::db, piping::column_update::ColumnUpdate};
 use deadpool_postgres::Pool;
 use std::sync::Arc;

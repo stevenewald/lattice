@@ -1,4 +1,4 @@
-use crate::caching::caching_data::CachingData;
+use crate::caching::processing::caching_data::CachingData;
 use crate::piping::column_update::ColumnUpdate;
 use crate::piping::piping::publish_update;
 use crate::query_parsing::formatting::format_sql_query;
