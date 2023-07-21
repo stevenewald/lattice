@@ -12,6 +12,24 @@ impl CachingData {
         }
     }
 
+    pub fn to_owned(&mut self) -> CachingData {
+        let mut tables = HashMap::new();
+        for (table, table_data) in self.tables.iter_mut() {
+            let mut columns = HashMap::new();
+            for (column, column_data) in table_data.columns.iter_mut() {
+                columns.insert(column.to_string(), column_data.to_owned());
+            }
+            tables.insert(
+                table.to_string(),
+                TableData {
+                    columns,
+                    ordered_columns: table_data.ordered_columns.to_owned(),
+                },
+            );
+        }
+        CachingData { tables }
+    }
+
     pub fn update(&mut self, table: &String, columns: &Vec<String>) {
         let table_data = self.tables.entry(table.to_string()).or_insert(TableData {
             columns: HashMap::new(),
@@ -76,4 +94,12 @@ struct TableData {
 
 struct ColumnData {
     access_freq: f32,
+}
+
+impl ColumnData {
+    fn to_owned(&mut self) -> ColumnData {
+        ColumnData {
+            access_freq: self.access_freq,
+        }
+    }
 }
