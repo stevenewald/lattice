@@ -67,7 +67,7 @@ impl CachingData {
         for (_, table_data) in self.tables.iter_mut() {
             let mut columns_to_remove: Vec<String> = Vec::new();
             for (column, column_data) in table_data.columns.iter_mut() {
-                column_data.access_freq /= 2.0;
+                // column_data.access_freq /= 2.0;
                 if column_data.access_freq < 1.0 {
                     column_data.access_freq = 1.0;
                 }

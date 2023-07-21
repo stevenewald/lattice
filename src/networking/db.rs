@@ -2,7 +2,7 @@ use crate::caching::caching_data::CachingData;
 use crate::piping::column_update::ColumnUpdate;
 use crate::piping::piping::publish_update;
 use crate::query_parsing::formatting::format_sql_query;
-use crate::query_parsing::parser::{extract_columns_tables, extract_usable_columns};
+use crate::query_parsing::parser::extract_query_info;
 use deadpool_postgres::Pool;
 use log::info;
 use std::sync::Arc;
@@ -22,16 +22,16 @@ pub async fn example_query(
 ) -> Result<QueryResult, Box<(dyn std::error::Error + 'static)>> {
     let query_sql = query_string.replace("%", " ");
 
-    let cols_tables = extract_columns_tables(&query_sql);
-    let cols = extract_usable_columns(&query_sql);
+    let cols_tables = extract_query_info(&query_sql);
+    let cols = cols_tables.columns;
     let tables = cols_tables.tables;
     let top_2_columns = caching_info.read().await.get_top_k_cols(&tables[0], 2);
-    // info!("Columns: {:?}", cols);
+    info!("Columns: {:?}", cols);
     if top_2_columns.len() > 0 {
         info!("Top column: {}", top_2_columns[0]);
     }
     let formatted_sql: String = format_sql_query(&query_sql);
-    // info!("Formatted: {}", formatted_sql);
+    info!("Formatted: {}", formatted_sql);
 
     publish_update(sender, cols);
 

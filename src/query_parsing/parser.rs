@@ -8,8 +8,9 @@ pub struct QueryMetrics {
     pub tables: Vec<String>,
 }
 
-pub fn extract_usable_columns(sql: &str) -> Vec<String> {
-    let QueryMetrics { columns, tables } = extract_columns_tables(sql);
+//TODO this entire file: refactor and change names to make more clear
+pub fn extract_query_info(sql: &str) -> QueryMetrics {
+    let QueryMetrics { columns, tables } = qm_from_sql(sql);
     // info!("Tables {:?}", tables);
     // want to relate unusable columns to their respective tables
     // right now, interpreting already usable columns as columns with dots
@@ -31,10 +32,13 @@ pub fn extract_usable_columns(sql: &str) -> Vec<String> {
         }
         resultant_cols.push(col);
     }
-    resultant_cols
+    QueryMetrics {
+        columns: resultant_cols,
+        tables,
+    }
 }
 
-pub fn extract_columns_tables(sql: &str) -> QueryMetrics {
+fn qm_from_sql(sql: &str) -> QueryMetrics {
     let dialect = PostgreSqlDialect {};
     let ast = Parser::parse_sql(&dialect, sql).unwrap();
 
