@@ -1,7 +1,10 @@
+use crate::caching::caching_data::CachingData;
 use crate::{networking::services, piping::column_update::ColumnUpdate};
 use deadpool_postgres::Pool;
 use hyper::{Body, Error, Request, Response};
+use std::sync::Arc;
 use tokio::sync::mpsc::UnboundedSender as Sender;
+use tokio::sync::RwLock;
 use url::form_urlencoded;
 
 //Todo: refactor into shared_state struct which has
@@ -12,6 +15,7 @@ pub async fn request_handler(
     req: Request<Body>,
     conn: Pool,
     sender: Sender<ColumnUpdate>,
+    caching_info: Arc<RwLock<CachingData>>,
 ) -> Result<Response<Body>, Error> {
     let mut sql_value: Option<String> = None;
 
