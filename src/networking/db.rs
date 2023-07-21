@@ -2,23 +2,19 @@ use crate::piping::piping::publish_update;
 use crate::sql::unpack_sql::cols_to_req;
 use crate::piping::column_update::ColumnUpdate;
 use crate::CachingData;
+use tokio_postgres::Row;
 use deadpool_postgres::Pool;
 use std::sync::Arc;
 use log::info;
 use tokio::sync::mpsc::UnboundedSender as Sender;
 use tokio::sync::RwLock;
 
-pub struct QueryResult {
-    pub first_name: String,
-    pub last_name: String,
-}
-
 pub async fn example_query(
     conn: Pool,
     query_string: &str,
     sender: Sender<ColumnUpdate>,
     caching_info: Arc<RwLock<CachingData>>,
-) -> Result<QueryResult, Box<(dyn std::error::Error + 'static)>> {
+) -> Result<Vec<Row>, Box<(dyn std::error::Error + 'static)>> {
     let query_sql = query_string.replace("%", " ");
     let cache = caching_info.read().await;
     
@@ -32,16 +28,8 @@ pub async fn example_query(
     publish_update(sender, old_cols);
 
     let client = conn.get().await?;
-    let result = client.query(&query_sql, &[]).await?;
-
-    if let Some(row) = result.iter().next() {
-        let first_name: String = row.get(0);
-        let last_name: String = row.get(1);
-        Ok(QueryResult {
-            first_name,
-            last_name,
-        })
-    } else {
-        Err("No rows returned from query".into())
+    match client.query(&query_sql, &[]).await {
+        Ok(res) => Ok(res),
+        Err(e) => Err(Box::new(e)),
     }
 }

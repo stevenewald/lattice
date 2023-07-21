@@ -1,10 +1,13 @@
 use crate::caching::processing::caching_data::CachingData;
+use crate::query_parsing::formatting::row_to_string;
 use crate::{networking::services, piping::column_update::ColumnUpdate};
 use deadpool_postgres::Pool;
 use hyper::{Body, Error, Request, Response};
+use log::info;
 use std::sync::Arc;
 use tokio::sync::mpsc::UnboundedSender as Sender;
 use tokio::sync::RwLock;
+use tokio_postgres::Row;
 use url::form_urlencoded;
 
 //Todo: refactor into shared_state struct which has
@@ -35,10 +38,13 @@ pub async fn request_handler(
         )));
     }
 
-    let result = services::sql_cache_service(conn, &sql_value.unwrap(), sender, caching_info).await;
+    let result: Vec<Row> =
+        services::sql_cache_service(conn, &sql_value.unwrap(), sender, caching_info).await;
 
-    Ok(Response::new(Body::from(format!(
-        "{}, {}",
-        result.first_name, result.last_name
-    ))))
+    let result_string_vec: Vec<String> = result.iter().map(|row| row_to_string(&row)).collect();
+    let result_string = result_string_vec.join("\n");
+
+    info!("Result: {}", result_string);
+
+    Ok(Response::new(Body::from(result_string)))
 }
