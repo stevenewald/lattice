@@ -27,11 +27,13 @@ async fn main() -> Result<(), Box<(dyn std::error::Error + 'static)>> {
     let make_service = make_service_fn(|_conn| {
         let pool = pool.clone();
         let sender = col_update_sender.clone();
+        let caching_info = Arc::clone(&caching_lock);
         async {
             Ok::<_, Error>(service_fn(move |req| {
                 let pool = pool.clone();
                 let sender = sender.clone();
-                request_handler(req, pool, sender)
+                let caching_info = caching_info.clone();
+                request_handler(req, pool, sender, caching_info)
             }))
         }
     });
