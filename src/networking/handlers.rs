@@ -35,7 +35,7 @@ pub async fn request_handler(
         )));
     }
 
-    let result = services::sql_cache_service(conn, &sql_value.unwrap(), sender).await;
+    let result = services::sql_cache_service(conn, &sql_value.unwrap(), sender, caching_info).await;
 
     Ok(Response::new(Body::from(format!(
         "{}, {}",

@@ -3,9 +3,9 @@ use sqlparser::ast::{Expr, SelectItem, SetExpr, Statement, TableFactor};
 use sqlparser::dialect::PostgreSqlDialect;
 use sqlparser::parser::Parser;
 
-struct QueryMetrics {
-    columns: Vec<String>,
-    tables: Vec<String>,
+pub struct QueryMetrics {
+    pub columns: Vec<String>,
+    pub tables: Vec<String>,
 }
 
 pub fn extract_usable_columns(sql: &str) -> Vec<String> {
@@ -34,7 +34,7 @@ pub fn extract_usable_columns(sql: &str) -> Vec<String> {
     resultant_cols
 }
 
-fn extract_columns_tables(sql: &str) -> QueryMetrics {
+pub fn extract_columns_tables(sql: &str) -> QueryMetrics {
     let dialect = PostgreSqlDialect {};
     let ast = Parser::parse_sql(&dialect, sql).unwrap();
 

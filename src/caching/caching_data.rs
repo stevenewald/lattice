@@ -12,6 +12,23 @@ impl CachingData {
         }
     }
 
+    pub fn get_top_k_cols(&self, table: &String, k: i8) -> Vec<String> {
+        if !self.tables.contains_key(table) {
+            info!("CANNOT FIND TABLE {}", table);
+            return Vec::new();
+        };
+        // Return the top k columns for the table
+        let table_data = self.tables.get(table).unwrap();
+        let mut top_k_cols: Vec<String> = Vec::new();
+        for i in 0..k {
+            if i >= table_data.ordered_columns.len() as i8 {
+                break;
+            }
+            top_k_cols.push(table_data.ordered_columns[i as usize].to_string());
+        }
+        top_k_cols
+    }
+
     pub fn to_owned(&mut self) -> CachingData {
         let mut tables = HashMap::new();
         for (table, table_data) in self.tables.iter_mut() {
