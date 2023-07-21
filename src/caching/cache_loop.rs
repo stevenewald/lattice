@@ -9,7 +9,6 @@ pub fn start_cache_rx(mut rx: Receiver<ColumnUpdate>) {
         let mut cache = CachingData::new();
         let mut interval = time::interval_at(Instant::now(), Duration::from_secs(5));
         loop {
-            continue;
             tokio::select! {
                 Some(data) = rx.recv() => {
                     handle_incoming_data(&mut cache, &data);
