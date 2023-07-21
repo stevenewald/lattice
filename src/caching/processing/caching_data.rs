@@ -14,7 +14,6 @@ impl CachingData {
 
     pub fn get_top_k_cols(&self, table: &String, k: i8) -> Vec<String> {
         if !self.tables.contains_key(table) {
-            info!("CANNOT FIND TABLE {}", table);
             return Vec::new();
         };
         // Return the top k columns for the table

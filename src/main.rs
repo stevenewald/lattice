@@ -14,6 +14,7 @@ mod config;
 mod networking;
 mod piping;
 mod query_parsing;
+mod sql;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<(dyn std::error::Error + 'static)>> {

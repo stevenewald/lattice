@@ -1,11 +1,10 @@
-use crate::caching::processing::caching_data::CachingData;
-use crate::piping::column_update::ColumnUpdate;
 use crate::piping::piping::publish_update;
-use crate::query_parsing::formatting::format_sql_query;
-use crate::query_parsing::parser::extract_query_info;
+use crate::sql::unpack_sql::cols_to_req;
+use crate::piping::column_update::ColumnUpdate;
+use crate::CachingData;
 use deadpool_postgres::Pool;
-use log::info;
 use std::sync::Arc;
+use log::info;
 use tokio::sync::mpsc::UnboundedSender as Sender;
 use tokio::sync::RwLock;
 
@@ -21,19 +20,16 @@ pub async fn example_query(
     caching_info: Arc<RwLock<CachingData>>,
 ) -> Result<QueryResult, Box<(dyn std::error::Error + 'static)>> {
     let query_sql = query_string.replace("%", " ");
+    let cache = caching_info.read().await;
+    
+    let (old_cols, new_cols) = cols_to_req(&query_sql, cache);
+    info!("Old cols: {:?}", old_cols);
+    info!("New cols: {:?}", new_cols);
 
-    let cols_tables = extract_query_info(&query_sql);
-    let cols = cols_tables.columns;
-    let tables = cols_tables.tables;
-    let top_2_columns = caching_info.read().await.get_top_k_cols(&tables[0], 2);
-    info!("Columns: {:?}", cols);
-    if top_2_columns.len() > 0 {
-        info!("Top column: {}", top_2_columns[0]);
-    }
-    let formatted_sql: String = format_sql_query(&query_sql);
-    info!("Formatted: {}", formatted_sql);
+    // let formatted_sql: String = format_sql_query(&query_sql);
+    // info!("Formatted: {}", formatted_sql);
 
-    publish_update(sender, cols);
+    publish_update(sender, old_cols);
 
     let client = conn.get().await?;
     let result = client.query(&query_sql, &[]).await?;
