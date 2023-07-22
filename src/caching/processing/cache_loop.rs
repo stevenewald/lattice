@@ -1,6 +1,5 @@
 use super::caching_data::CachingData;
 use crate::piping::column_update::ColumnUpdate;
-use log::info;
 use std::sync::Arc;
 use tokio::sync::mpsc::UnboundedReceiver as Receiver;
 use tokio::sync::RwLock;
@@ -29,7 +28,6 @@ pub fn start_cache_rx(mut rx: Receiver<ColumnUpdate>) -> Arc<RwLock<CachingData>
 }
 
 fn handle_incoming_data(cache: &mut CachingData, data: &ColumnUpdate) {
-    info!("Cache prox rx {}: {:?}", data.table, data.columns);
     cache.update(&data.table, &data.columns);
 }
 

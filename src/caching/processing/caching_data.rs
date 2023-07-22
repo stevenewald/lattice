@@ -1,4 +1,4 @@
-use log::info;
+use crate::query_parsing::parser::extract_query_info;
 use std::collections::HashMap;
 
 pub struct CachingData {
@@ -10,6 +10,22 @@ impl CachingData {
         CachingData {
             tables: HashMap::new(),
         }
+    }
+
+    pub fn get_top_k_cols(&self, table: &String, k: i8) -> Vec<String> {
+        if !self.tables.contains_key(table) {
+            return Vec::new();
+        };
+        // Return the top k columns for the table
+        let table_data = self.tables.get(table).unwrap();
+        let mut top_k_cols: Vec<String> = Vec::new();
+        for i in 0..k {
+            if i >= table_data.ordered_columns.len() as i8 {
+                break;
+            }
+            top_k_cols.push(table_data.ordered_columns[i as usize].to_string());
+        }
+        top_k_cols
     }
 
     pub fn to_owned(&mut self) -> CachingData {
@@ -46,11 +62,35 @@ impl CachingData {
         }
     }
 
+    pub fn cols_to_req(&self, query_sql: &str) -> (Vec<String>, Vec<String>) {
+        let cols_tables = extract_query_info(&query_sql);
+        let cols = cols_tables.columns;
+        let tables = cols_tables.tables;
+
+        let mut new_columns: Vec<String> = Vec::new();
+
+        for table in tables {
+            let top_2_columns = self.get_top_k_cols(&table, 5);
+            for col in top_2_columns {
+                new_columns.push(table.clone() + "." + &col.to_string());
+            }
+        }
+
+        //For small n, actually faster than using set. May change later
+        let mut new_columns_no_overlap: Vec<String> = Vec::new();
+        for col in new_columns {
+            if !cols.contains(&col) {
+                new_columns_no_overlap.push(col);
+            }
+        }
+        (cols, new_columns_no_overlap)
+    }
+
     pub fn sort_and_clean(&mut self) {
         for (_, table_data) in self.tables.iter_mut() {
             let mut columns_to_remove: Vec<String> = Vec::new();
-            for (column, column_data) in table_data.columns.iter_mut() {
-                column_data.access_freq /= 2.0;
+            for (_, column_data) in table_data.columns.iter_mut() {
+                // column_data.access_freq /= 2.0;
                 if column_data.access_freq < 1.0 {
                     column_data.access_freq = 1.0;
                 }
@@ -75,14 +115,6 @@ impl CachingData {
                 let b_data = table_data.columns.get(b).unwrap();
                 b_data.access_freq.partial_cmp(&a_data.access_freq).unwrap()
             });
-        }
-
-        //for each table, print table name and the ordered columns
-        for (table, table_data) in self.tables.iter() {
-            info!(
-                "Table: {} - Columns: {:?}",
-                table, table_data.ordered_columns
-            );
         }
     }
 }
