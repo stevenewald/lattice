@@ -1,5 +1,4 @@
 use crate::query_parsing::parser::extract_query_info;
-use log::info;
 use std::collections::HashMap;
 
 pub struct CachingData {
@@ -90,7 +89,7 @@ impl CachingData {
     pub fn sort_and_clean(&mut self) {
         for (_, table_data) in self.tables.iter_mut() {
             let mut columns_to_remove: Vec<String> = Vec::new();
-            for (column, column_data) in table_data.columns.iter_mut() {
+            for (_, column_data) in table_data.columns.iter_mut() {
                 // column_data.access_freq /= 2.0;
                 if column_data.access_freq < 1.0 {
                     column_data.access_freq = 1.0;
@@ -116,14 +115,6 @@ impl CachingData {
                 let b_data = table_data.columns.get(b).unwrap();
                 b_data.access_freq.partial_cmp(&a_data.access_freq).unwrap()
             });
-        }
-
-        //for each table, print table name and the ordered columns
-        for (table, table_data) in self.tables.iter() {
-            info!(
-                "Table: {} - Columns: {:?}",
-                table, table_data.ordered_columns
-            );
         }
     }
 }

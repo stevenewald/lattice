@@ -44,7 +44,5 @@ pub async fn request_handler(
     let result_string_vec: Vec<String> = result.iter().map(|row| row_to_string(&row)).collect();
     let result_string = result_string_vec.join("\n");
 
-    info!("Result: {}", result_string);
-
     Ok(Response::new(Body::from(result_string)))
 }
