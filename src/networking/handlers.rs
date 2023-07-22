@@ -3,7 +3,6 @@ use crate::query_parsing::formatting::row_to_string;
 use crate::{networking::services, piping::column_update::ColumnUpdate};
 use deadpool_postgres::Pool;
 use hyper::{Body, Error, Request, Response};
-use log::info;
 use std::sync::Arc;
 use tokio::sync::mpsc::UnboundedSender as Sender;
 use tokio::sync::RwLock;

@@ -33,6 +33,16 @@ pub async fn sql_cache_service(
 
     publish_update(sender, old_cols);
 
+    //Core column replacement is done for now. Now, we need a way to do the following
+    //1. Check if the query is cached
+    //2. If it is, return the cached result
+    //3. If it isn't, execute the query and cache the result
+    //4. Return the result
+
+    //Steps 2 and 4 are the same. We can use the same function for both.
+    //Step 3 is basically already done
+    //So we need to make steps 1, 2 and 4
+
     db::query(conn, &query_sql)
         .await
         .expect("Query execution failed")

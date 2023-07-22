@@ -89,14 +89,11 @@ impl CachingData {
     pub fn sort_and_clean(&mut self) {
         for (_, table_data) in self.tables.iter_mut() {
             let mut columns_to_remove: Vec<String> = Vec::new();
-            for (_, column_data) in table_data.columns.iter_mut() {
+            for (column, column_data) in table_data.columns.iter_mut() {
                 // column_data.access_freq /= 2.0;
                 if column_data.access_freq < 1.0 {
-                    column_data.access_freq = 1.0;
+                    columns_to_remove.push(column.to_string());
                 }
-                // if column_data.access_freq < 1.0 {
-                // columns_to_remove.push(column.to_string());
-                // }
             }
 
             for column in columns_to_remove {
